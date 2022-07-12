@@ -1,0 +1,17 @@
+.questions-list {
+    display: flex;
+    flex-direction: column;
+    border-radius: 0.25rem;
+
+    &__item {
+        border: 1px solid #e9ebec;
+
+        &:first-child {
+            border-radius: 0.25rem 0.25rem 0 0;
+        }
+
+        &:last-child {
+            border-radius: 0 0 0.25rem 0.25rem;
+        }
+    }
+}

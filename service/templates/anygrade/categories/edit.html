@@ -1,0 +1,35 @@
+{% extends 'anygrade/base.html' %}
+{% load anygrade_tags %}
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="section__header">
+                    <h4 class="section__title">Редактирование категории</h4>
+                </div>
+            </div>
+            <form action="" method="POST" class="form">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card__body">
+                                <div class="form__field">
+                                    <label for="title" class="form__label">Название категории</label>
+                                    <input type="text" id="title" name="title" class="form__input" value="{{ category.title }}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="buttons">
+                            <a href="{% url 'categories' %}" class="button">Отменить</a>
+                            <a href="{{ category.get_absolute_url }}/remove" class="button button--danger">Удалить</a>
+                            <button class="button button--success">Сохранить</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

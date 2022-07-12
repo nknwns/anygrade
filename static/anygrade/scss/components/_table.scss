@@ -1,0 +1,45 @@
+.table {
+    max-width: 100%;
+    border-spacing: 0;
+
+    &--fluid {
+        width: 100%;
+    }
+
+    &__head {
+        background-color: #f3f6f9;
+    }
+
+    th {
+        color: #878a99;
+        text-align: left;
+    }
+
+    th, td {
+        border: 0 solid #e9ebec;
+        padding: 0.75rem 0.6rem;
+        border-bottom-width: 1px;
+        overflow-x: hidden;
+
+        a:not(.button) {
+            color: #6691e7;
+
+            &:hover {
+                color: #5274b9;
+            }
+        }
+    }
+}
+
+.table--clear {
+    th, td {
+        font-weight: 400;
+        border: none;
+        padding: 5px 0;
+    }
+    
+    th {
+        color: #212529;
+        padding-right: 15px;
+    }
+}

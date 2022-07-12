@@ -1,0 +1,50 @@
+.registration {
+    display: flex;
+    align-items: center;
+    min-height: 100vh;
+
+    .row {
+        justify-content: center;
+    }
+
+    .card {
+        &__body {
+            padding: 1.5rem;
+        }
+
+        margin-bottom: 0;
+    }
+
+    &__header {
+        text-align: center;
+        width: 70%; 
+        margin: 0 auto 1rem;
+    }
+
+    &__title {
+        color: rgb(102, 145, 231);
+        font-size: 1.03125rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    &__description {
+        color: #878a99;
+    }
+    
+    .form {
+        label {
+            display: inline-block;
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+    }
+
+    .errorlist {
+        margin-bottom: 1rem;
+        color: rgb(237, 94, 94);
+    }
+}

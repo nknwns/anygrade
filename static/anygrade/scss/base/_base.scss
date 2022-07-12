@@ -1,0 +1,28 @@
+@use 'typography';
+
+body {
+    font-family: 'Rubik', sans-serif;
+    background-color: #f3f6f9;
+    color: #212529;
+    font-size: 0.825rem;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+ul {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+main {
+    min-height: calc(100vh - 60px);
+    padding: 140px 0 30px;
+
+    &.default {
+        padding: 0;
+    }
+}

@@ -1,0 +1,47 @@
+{% extends 'anygrade/base.html' %}
+{% load anygrade_tags %}
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="section__header">
+                    <h4 class="section__title">Список категорий</h4>
+                    <a href="{% url 'add-category' %}" class="button button--success">+ Добавить категорию</a>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-5">
+                <div class="card">
+                    <div class="card__body">
+                        <table class="table">
+                            <thead class="table__head">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Категория</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for category in categories %}
+                                <tr>
+                                    <td>
+                                        <a href="{{ category.get_absolute_url }}/edit" target="_blank">#{{ category.pk }}</a>
+                                    </td>
+                                    <td>{{ category.title }}</td>
+                                    <td>
+                                        <a href="{{ category.get_absolute_url }}/edit" class="button mb-1">Редактировать</a>
+                                        <a href="{{ category.get_absolute_url }}/remove" class="button button--danger">Удалить</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

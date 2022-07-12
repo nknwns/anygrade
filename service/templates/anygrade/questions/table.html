@@ -1,0 +1,28 @@
+{% if questions.count %}
+    <table class="table">
+    <thead class="table__head">
+        <tr>
+            <th>ID</th>
+            <th>Вопрос</th>
+            <th>Категория</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for question in questions %}
+        <tr>
+            <td>
+                <a href="{{ question.get_absolute_url }}" target="_blank">#{{ question.pk }}</a>
+            </td>
+            <td>
+                {{ question.title }}
+            </td>
+            <td>
+                <span class="badge badge--secondary">{{ question.category }}</span>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>Список вопросов пуст</p>
+{% endif %}

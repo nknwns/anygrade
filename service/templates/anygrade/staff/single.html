@@ -1,0 +1,106 @@
+{% extends 'anygrade/base.html' %}
+{% load anygrade_tags %}
+{% block content %}
+<section class="user section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="section__header">
+                    <h4 class="section__title">Просмотр пользователя</h4>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="card">
+                    <div class="card__header">
+                        <h5 class="card__title">Основная информация</h5>
+                    </div>
+                    <div class="card__body">
+                        <table class="user__table table table--clear">
+                            <tbody>
+                                <tr>
+                                    <th>Полное имя</th>
+                                    <td>{{ user.get_full_name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>E-mail</th>
+                                    <td>{{ user.email }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Дата регистрации</th>
+                                    <td>{{ user.date_joined|date:"d M Y" }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-9">
+                <div class="card">
+                    <div class="card__header">
+                        <h5 class="card__title">Вопросы, созданные пользователем</h5>
+                    </div>
+                    <div class="card__body">
+                        <table class="table">
+                            <thead class="table__head">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Вопрос</th>
+                                    <th>Категория</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% get_questions_by_user user.pk as questions %}
+                                {% for question in questions %}
+                                <tr>
+                                    <td>
+                                        <a href="{{ question.get_absolute_url }}" target="_blank">#{{ question.pk }}</a>
+                                    </td>
+                                    <td>
+                                        {{ question.title }}
+                                    </td>
+                                    <td>
+                                        <span class="badge badge--secondary">{{ question.category }}</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="section__header">
+                    <h4 class="section__title">Шаблоны, созданные пользователем</h4>
+                </div>
+            </div>
+            {% get_templates_by_user user.pk as templates %}
+            {% for template in templates %}
+            <div class="col-sm-6 col-xxl-3">
+                <div class="card template-item">
+                    <a href="{{ template.get_absolute_url }}">
+                        <div class="card__body">
+                            <div class="template-item__header">
+                                <span class="template-item__date">{{ template.created_at }}</span>
+                            </div>
+                            <div class="template-item__content">
+                                <h5 class="template-item__title">{{ template.title }}</h5>
+                                <p class="template-item__description">{{ template.description | truncatechars:50 }}</p>
+                                <div class="template-item__counters">
+                                    <span>Вопросы</span>
+                                    <span>{{ template.question.count }}/40</span>
+                                </div>
+                                <div class="template-item__progress progress">
+                                    <div class="progress__body progress__body--success" style="width: {% get_questions_percent template.pk %}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,37 @@
+.badge {
+    display: inline-block;
+    padding: 0.35em 0.65em;
+    font-size: .75em;
+    font-weight: 600;
+    line-height: 1;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    border-radius: 0.25rem;
+    text-transform: uppercase;
+    
+    &--warning {
+        color: #e8bc52;
+        background-color: rgba(232,188,82,.1);
+    }
+    
+    &--success {
+        color: #13c56b;
+        background-color: rgba(19,197,107,.1);
+    }
+
+    &--secondary {
+        color: #865ce2;
+        background-color: rgba(134,92,226,.1);
+    }
+
+    &--danger {
+        color: #ed5e5e;
+        background-color: rgba(237,94,94,.1);
+
+        &:hover {
+            color: #fff;
+            background-color: rgba(237, 94, 94, 1);
+        }
+    }
+}

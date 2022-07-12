@@ -1,0 +1,72 @@
+{% extends 'anygrade/base.html' %}
+{% load anygrade_tags %}
+{% block content %}
+<section class="template section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="section__header">
+                    <h4 class="section__title">Просмотр шаблона</h4>
+                    <a href="{{ template.get_absolute_url }}/copy" class="card__button button button--success">Использовать шаблон</a>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card__body">
+                        <div class="template__header">
+                            <h5 class="template__title">{{ template.title }}</h5>
+                            <p class="template__id">ID: #{{ template.pk }}</p>
+                        </div>
+                        <div class="template__description">
+                            <table class="template__table table table--clear">
+                                <tbody>
+                                    <tr>
+                                        <th>Автор</th>
+                                        <td>
+                                            <a target="_blank" href="{% url 'user' template.author.username %}">{{ template.author.get_full_name }}</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Количество вопросов</th>
+                                        <td>{{ template.question.count }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Дата создания</th>
+                                        <td>{{ template.created_at|date:"d M Y" }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card__body card__body--border-top">
+                        <h6 class="card__subtitle">Описание</h6>
+                        <p class="card__text">{{ template.description }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <div class="line form">
+                    <div class="form__group">
+                        <a href="{{ template.get_absolute_url }}/edit" class="button">Редактировать шаблон</a>
+                    </div>
+                    <div class="form__group">
+                        <label for="question-title" hidden>Заголовок вопроса</label>
+                        <input name="question-title" id="question-title" type="text" class="form__input w-300" placeholder="Поиск вопроса...">
+                        <button class="button button--secondary button--addon">Поиск</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card__header">
+                        <h5 class="card__title">Список вопросов</h5>
+                    </div>
+                    <div class="card__body">
+                        {% show_questions_table template.pk %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

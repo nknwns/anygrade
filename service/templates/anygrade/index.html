@@ -1,0 +1,8 @@
+{% extends 'anygrade/base.html' %}
+
+{% block content %}
+<h1>Главная страница</h1>
+    {% for post in posts %}
+    <p>{{ post.first_name }}</p>
+    {% endfor %}
+{% endblock %}

@@ -1,0 +1,104 @@
+{% extends 'anygrade/base.html' %}
+{% load anygrade_tags %}
+{% block content %}
+<section class="template section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="section__header">
+                    <h4 class="section__title">Редактирование шаблона</h4>
+                </div>
+            </div>
+            <form action="{{ template.get_absolute_url }}/edit" method="POST" class="template__form form">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="card">
+                            <div class="card__body">
+                                <div class="form__field">
+                                    <label for="title" class="form__label">Название шаблона</label>
+                                    <input type="text" id="title" name="title" class="form__input" value="{{ template.title }}">
+                                </div>
+                                <div class="form__field">
+                                    <label for="description" class="form__label">Описание шаблона</label>
+                                    <textarea class="form__input form__input--textarea" name="description" id="description">{{ template.description }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card__header">
+                                <h5 class="card__title">Список вопросов</h5>
+                            </div>
+                            <div class="card__body">
+                                <ul class="questions-list">
+                                    {% for question in template.question.all %}
+                                    <li class="questions-list__item question">
+                                        <input type="text" hidden name="question-{{ forloop.counter }}" value="{{ question.pk }}">
+                                        <div class="question__description">
+                                            <span class=" question__title">{{ question.title }}</span>
+                                            <span class="badge badge--secondary  question__category">{{ question.category }}</span>
+                                        </div>
+                                        <a href="#" class="badge badge--danger question__action">x</a>
+                                    </li>
+                                    {% endfor %}
+                               </ul>
+                            </div>
+                        </div>
+                        <div class="buttons">
+                            <a href="{{ template.get_absolute_url }}" class="button">Отменить</a>
+                            <a href="{{ template.get_absolute_url }}/delete" class="button button--danger">Удалить</a>
+                            <button class="button button--success">Сохранить</button>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card">
+                            <div class="card__header">
+                                <h5 class="card__title">Создать вопрос</h5>
+                            </div>
+                            <div class="card__body">
+                                <div class="form__field">
+                                    <label for="question-title" class="form__label">Содержание</label>
+                                    <input type="text" name="question-title" class="form__input">
+                                </div>
+                                <div class="form__field">
+                                    <label for="question-category" class="form__label">Категория</label>
+                                    <select class="form__input form__input--select" name="question-category" id="question-category">
+                                        {% get_categories as categories %}
+                                        <option disabled selected>Выберите категорию</option>
+                                        {% for category in categories %}
+                                            <option value="{{ category.pk }}">{{ category }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form__field">
+                                    <a href="#" class="button button--success">Добавить</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card__header">
+                                <h5 class="card__title">Добавить вопрос</h5>
+                            </div>
+                            <div class="card__body">
+                                <div class="form__field">
+                                    <label for="title" class="form__label">Выберите существующий вопрос</label>
+                                    <input type="text" class="form__input" list="questions">
+                                    <datalist id="questions">
+                                        {% get_questions as questions %}
+                                        {% for question in questions  %}
+                                            <option value="#{{ question.pk }}">{{ question }}</option>
+                                        {% endfor %}
+                                    </datalist>
+                                </div>
+                                <div class="form__field">
+                                    <a href="#" class="button button--success">Добавить</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

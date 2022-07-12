@@ -1,0 +1,21 @@
+.assigned {
+    &__item {
+        margin-bottom: 15px;
+    }
+}
+
+.user {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 500;
+
+    &__name {
+        color: rgb(33, 37, 41);
+        margin-bottom: 5px;
+    }
+
+    &__staff {
+        color: #878a99;
+    }
+}

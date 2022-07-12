@@ -1,0 +1,71 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="{% static 'anygrade/css/reseter.css' %}">
+    <link rel="stylesheet" href="{% static 'anygrade/css/bootstrap-grid.min.css' %}">
+    <link rel="stylesheet" href="{% static 'anygrade/scss/main.css' %}">
+    <script src="https://cdn.lordicon.com/xdjxvujz.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header__wrapper">
+                <div class="header__left">
+                    <a href="{% url 'home' %}" class="header__logo">Anygrade</a>
+                </div>
+                <div class="header__right">
+                    {% if request.user.is_authenticated %}
+                        <a href="{% url 'logout' %}" class="header__button button button--danger">Выйти</a>
+                    {% else %}
+                        <a href="{% url 'authorization' %}" class="header__button button">Войти</a>
+                        <a href="{% url 'registration' %}" class="header__button button button--danger">Регистрация</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="app-menu">
+        <div class="container">
+            <div class="app-menu__wrapper">
+                <nav class="app-menu__nav">
+                    <ul class="app-menu__menu">
+                        <li class="app-menu__item">
+                            <a href="{% url 'questions' %}" class="app-menu__link">Вопросы</a>
+                        </li>
+                        <li class="app-menu__item">
+                            <a href="{% url 'templates' %}" class="app-menu__link">Шаблоны</a>
+                        </li>
+                        {% if request.user.is_authenticated %}
+                            <li class="app-menu__item">
+                                <a href="{% url 'reviews' %}" class="app-menu__link">Опросы</a>
+                            </li>
+                        {% endif %}
+                        <li class="app-menu__item">
+                            <a href="{% url 'categories' %}" class="app-menu__link">Категории</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+    <main>
+    {% block content %}
+    {% endblock %}
+</main>
+<footer class="footer">
+    <div class="container">
+        <div class="footer__wrapper">
+            <span>2022 © Anygrade.</span>
+            <span>Разработано и cоздано Шаевым Андреем, студентом Московского Политеха</span>
+        </div>
+    </div>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'anygrade/js/main.js' %}"></script>
+</body>
+</html>

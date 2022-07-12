@@ -1,0 +1,51 @@
+{% extends 'anygrade/base.html' %}
+{% load anygrade_tags %}
+{% block content %}
+<section class="template section">
+    <div class="container">
+        {% if request.user.is_authenticated %}
+        <div class="row">
+            <div class="col-12">
+                <div class="section__header">
+                    <h4 class="section__title">Список отчетов</h4>
+                    <a href="{% url 'add-review' %}" class="button button--success">+ Создать опрос</a>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            {% if reviews.count %}
+            {% for review in reviews %}
+            <div class="col-sm-6 col-xxl-3">
+                <div class="card template-item">
+                    <a href="{{ review.get_absolute_url }}">
+                        <div class="card__body">
+                            <div class="template-item__header">
+                                <span class="template-item__date">{{ review.created_at }}</span>
+                            </div>
+                            <div class="template-item__content">
+                                <h5 class="template-item__title">{{ review.title }}</h5>
+                                <p class="template-item__description">{{ review.description | truncatechars:50 }}</p>
+                                <div class="template-item__counters">
+                                    <span>Вопросы</span>
+                                    <span>{{ review.question.count }}/50</span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <p>Список отчетов пуст.</p>
+            {% endif %}
+        </div>
+        {% else %}
+            <div class="row">
+                <div class="col-12">
+                    <h2>Для просмотра отчетов необходимо авторизоваться.</h2>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

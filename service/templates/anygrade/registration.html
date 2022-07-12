@@ -1,0 +1,42 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="{% static 'anygrade/css/reseter.css' %}">
+    <link rel="stylesheet" href="{% static 'anygrade/css/bootstrap-grid.min.css' %}">
+    <link rel="stylesheet" href="{% static 'anygrade/scss/main.css' %}">
+</head>
+<body>
+    <main class="default">
+        <section class="registration">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-8 col-lg-6 col-xl-5">
+                        <div class="card">
+                            <div class="card__body">
+                                <div class="registration__header">
+                                    <h5 class="registration__title">Создание нового аккаунта</h5>
+                                    <p class="registration__description">Получите все возможности нашего сервиса совершенно бесплатно</p>
+                                </div>
+                                <form class="form" method="post">
+                                    {% csrf_token %}
+                                    {{ form.as_p }}
+                                    <button type="submit" class="button button--fluid button--success mb-1">Регистрация</button>
+                                    <a href="{% url 'authorization' %}" class="button button--fluid button--danger mb-1">Войти</a>
+                                    <a href="{% url 'home' %}" class="button button--fluid">На главную</a>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script src="{% static 'anygrade/js/main.js' %}"></script>
+</body>
+</html>

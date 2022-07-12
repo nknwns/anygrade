@@ -1,0 +1,12 @@
+.footer {
+    height: 60px;
+    background-color: #fff;
+    color: #98a6ad;
+    padding: 20px 12px;
+
+    &__wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+}

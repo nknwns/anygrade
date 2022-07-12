@@ -1,0 +1,49 @@
+{% extends 'anygrade/base.html' %}
+{% load anygrade_tags %}
+{% block content %}
+<section class="review">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="section__header">
+                    <h4 class="section__title">{{ review.title }}</h4>
+                </div>
+            </div>
+        </div>
+        <form action="" class="row" method="post">
+            {% for question in review.question.all %}
+                <div class="col-lg-4 mb-1">
+                    <div class="question-item">
+                        <h2 class="question-item__header">{{ question.title }}</h2>
+                        <div class="question-item__body">
+                            <label class="question-item__label" for="">
+                                Да
+                                <input type="radio" name="question-{{ question.pk }}" value="1">
+                            </label>
+                            <label class="question-item__label" for="">
+                                Скорее да
+                                <input type="radio" name="question-{{ question.pk }}" value="2">
+                            </label>
+                            <label class="question-item__label" for="">
+                                Не знаю
+                                <input type="radio" name="question-{{ question.pk }}" value="3">
+                            </label>
+                            <label class="question-item__label" for="">
+                                Скорее нет
+                                <input type="radio" name="question-{{ question.pk }}" value="4">
+                            </label>
+                            <label class="question-item__label" for="">
+                                Нет
+                                <input type="radio" name="question-{{ question.pk }}" value="5">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            <div class="col-lg-6 offset-lg-3">
+                <button class="button button--success button--fluid">Сохранить</button>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

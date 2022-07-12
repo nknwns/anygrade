@@ -1,0 +1,51 @@
+{% extends 'anygrade/base.html' %}
+{% load anygrade_tags %}
+{% block content %}
+<section class="template section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="section__header">
+                    <h4 class="section__title">Список вопросов</h4>
+                    <a href="{% url 'add-question' %}" class="button button--success">+ Добавить вопрос</a>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="card">
+                <div class="card__body">
+                    <table class="table">
+                        <thead class="table__head">
+                            <tr>
+                                <th>ID</th>
+                                <th>Вопрос</th>
+                                <th>Категория</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for question in questions %}
+                            <tr>
+                                <td>
+                                    <a href="{{ question.get_absolute_url }}" target="_blank">#{{ question.pk }}</a>
+                                </td>
+                                <td>
+                                    {{ question.title }}
+                                </td>
+                                <td>
+                                    <span class="badge badge--secondary">{{ question.category }}</span>
+                                </td>
+                                <td>
+                                    <a href="{{ question.get_absolute_url }}" class="button mb-1">Редактировать</a>
+                                    <a href="{{ question.get_absolute_url }}/remove" class="button button--danger">Удалить</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

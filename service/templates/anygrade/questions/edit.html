@@ -1,0 +1,55 @@
+{% extends 'anygrade/base.html' %}
+{% load anygrade_tags %}
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="section__header">
+                    <h4 class="section__title">Редактирование вопроса</h4>
+                </div>
+            </div>
+            <form action="{{ question.get_absolute_url }}/edit" method="POST" class="form">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="card">
+                            <div class="card__body">
+                                <div class="form__field">
+                                    <label for="title" class="form__label">Содержание вопроса</label>
+                                    <input type="text" id="title" name="title" class="form__input" value="{{ question.title }}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="buttons">
+                            <a href="{% url 'questions' %}" class="button">Отменить</a>
+                            <a href="{{ question.get_absolute_url }}/delete" class="button button--danger">Удалить</a>
+                            <button class="button button--success">Сохранить</button>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card">
+                            <div class="card__header">
+                                <h5 class="card__title">Категория</h5>
+                            </div>
+                            <div class="card__body">
+                                <div class="form__field">
+                                    <label for="category" class="form__label">Выберите существующую категорию</label>
+                                    <select name="category" class="form__input" id="category">
+                                            <option selected value="{{question.category.pk}}">{{question.category}}</option>
+                                            {% get_categories as categories %}
+                                            {% for category in categories  %}
+                                            <option value="#{{ category.pk }}">{{ category }}</option>
+                                            {% endfor %}
+                                    </select>
+        
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

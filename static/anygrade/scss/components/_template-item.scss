@@ -1,0 +1,37 @@
+.template-item {
+    transition: transform .5s ease, background-color .5s ease;
+
+    &:hover {
+        transform: scale(1.05);
+        background-color: rgba(0, 0, 0, .05);
+    }
+
+    &__header {
+        margin-bottom: 1rem;
+    }
+
+    &__date {
+        color: #878a99;
+    }
+
+    &__title {
+        font-size: 14px;
+        margin-bottom: 0.25rem;
+        color: rgb(33, 37, 41);
+    }
+
+    &__description {
+        color: #878a99;
+        margin-bottom: 1rem;
+    }
+    
+    &__counters {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    &__progress {
+        margin-top: 0.5rem;
+    }
+}

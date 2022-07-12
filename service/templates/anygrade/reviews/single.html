@@ -1,0 +1,126 @@
+{% extends 'anygrade/base.html' %}
+{% load anygrade_tags %}
+{% block content %}
+<section class="review">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card__body">
+                        <div class="review__header">
+                            <h5 class="review__title">{{ review.title }}</h5>
+                            <p class="review__id">ID: #{{ review.pk }}</p>
+                        </div>
+                        <div class="review__description">
+                            <table class="table table--clear">
+                                <tbody>
+                                    <tr>
+                                        <th>Автор</th>
+                                        <td>
+                                            <a href="{{ review.author.get_absolute_url }}">{{ review.author.get_full_name }}</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Цель опроса</th>
+                                        <td>
+                                            <a class="review__subject" href="{{ review.subject.get_absolute_url }}">{{ review.subject.get_full_name }}</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Количество вопросов</th>
+                                        <td>{{ review.question.count }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Количество участников</th>
+                                        <td>{{ review.participant.count }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Дата создания</th>
+                                        <td>{{ review.created_at|date:"d M Y" }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card__header">
+                        <h5 class="card__title">Отслеживание времени</h5>
+                    </div>
+                    <div class="card__body">
+                        <div class="review__time">
+                            <lord-icon
+                                src="https://cdn.lordicon.com/abgtphux.json"
+                                trigger="loop"
+                                style="width:90px;height:90px">
+                            </lord-icon>
+                            <h3 class="review__datetime">Старт: {{ review.start_time|date:"d M Y, H:00" }}</h3>
+                            <h3 class="review__datetime">Окончание: {{ review.end_time|date:"d M Y, H:00" }}</h3>
+                            <div class="review__buttons">
+                                <a href="#" class="button button--success">Начать</a>
+                                <a href="#" class="button button--danger">Остановить</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card__header">
+                        <h5 class="card__title">Описание</h5>
+                    </div>
+                    <div class="card__body">
+                        <p>{{ review.description }}</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card__header">
+                        <h5 class="card__title">Список участников</h5>
+                    </div>
+                    <div class="card__body">
+                        <ul class="review__users">
+                            {% for user in review.participant.all %}
+                            <li class="review__user">
+                                <h6 class="review__username">
+                                    <a href="{{user.get_absolute_url}}">{{user.get_full_name}}</a>
+                                </h6>
+                                <p class="review__post">Веб-разработчик</p>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <a href="{{ review.get_absolute_url }}/edit" class="button mb-1">Редактировать</a>
+                <a href="{{ review.get_absolute_url }}/remove" class="button button--danger mb-1">Удалить</a>
+                <a href="{{ review.get_absolute_url }}/do" class="button button--success mb-1">Пройти опрос</a>
+                {% if result.status %}
+                    <div class="card">
+                        <div class="card__header">
+                            <h5 class="card__title">Оценки</h5>
+                        </div>
+                        <div class="card__body">
+                            <div class="radar">
+                                <canvas class="radar-chart"></canvas>
+                                <div class="radar-labels">
+                                    {{ result.categories }}
+                                </div>
+                                <div class="radar-data">
+                                    {{ result.data }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+                <div class="card">
+                    <div class="card__header">
+                        <h5 class="card__title">Список Вопросов</h5>
+                    </div>
+                    <div class="card__body">
+                        {% show_questions_table_by_review review.pk %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,39 @@
+.card {
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 2px rgb(56 65 74 / 15%);
+    background-color: #fff;
+    border: 0 solid rgba(0,0,0,.125);
+    border-radius: 0.25rem;
+    height: min-content;
+
+    &__header {
+        padding: 1rem;
+        border-bottom: 1px solid #e9ebec;
+        border-top: 1px solid #e9ebec;
+
+        &:first-child {
+            border-radius: 0.25rem 0.25rem 0 0;
+            border-top: none;
+        }
+    }
+
+    &__body {
+        padding: 1rem;
+
+        &--border-top {
+            border-top: 1px dashed #e9ebec;
+        }
+    }
+
+    &__title {
+        font-size: 16px;
+    }
+
+    &__subtitle {
+        color: #878a99;
+        font-weight: 500;
+        font-size: .825rem;
+        text-transform: uppercase;
+        margin-bottom: 1rem;
+    }
+}

@@ -1,0 +1,42 @@
+{% extends 'anygrade/base.html' %}
+{% load anygrade_tags %}
+{% block content %}
+<section class="template section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="section__header">
+                    <h4 class="section__title">Список шаблонов</h4>
+                    <a href="{% url 'add-template' %}" class="button button--success">+ Создать шаблон</a>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            {% for template in templates %}
+            <div class="col-sm-6 col-xxl-3">
+                <div class="card template-item">
+                    <a href="{{ template.get_absolute_url }}">
+                        <div class="card__body">
+                            <div class="template-item__header">
+                                <span class="template-item__date">{{ template.created_at }}</span>
+                            </div>
+                            <div class="template-item__content">
+                                <h5 class="template-item__title">{{ template.title }}</h5>
+                                <p class="template-item__description">{{ template.description | truncatechars:50 }}</p>
+                                <div class="template-item__counters">
+                                    <span>Вопросы</span>
+                                    <span>{{ template.question.count }}/40</span>
+                                </div>
+                                <div class="template-item__progress progress">
+                                    <div class="progress__body progress__body--success" style="width: {% get_questions_percent template.pk %}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

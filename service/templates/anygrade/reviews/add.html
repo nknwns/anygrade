@@ -1,0 +1,147 @@
+{% extends 'anygrade/base.html' %}
+{% load anygrade_tags %}
+{% block content %}
+<section class="template section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="section__header">
+                    <h4 class="section__title">Создание опроса</h4>
+                </div>
+            </div>
+            <form action="{% url 'add-review' %}" class="template__form form">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="card">
+                            <div class="card__body">
+                                <div class="form__field">
+                                    <label for="title" class="form__label">Название опроса</label>
+                                    <input type="text" id="title" name="title" class="form__input">
+                                </div>
+                                <div class="form__field">
+                                    <label for="description" class="form__label">Описание опроса</label>
+                                    <textarea class="form__input form__input--textarea" name="description" id="description"></textarea>
+                                </div>
+                                <div class="form__field">
+                                    <label for="start" class="form__label">Дата начала</label>
+                                    <input type="datetime-local" id="start" name="start" class="form__input">
+                                </div>
+                                <div class="form__field">
+                                    <label for="end" class="form__label">Дата окончания</label>
+                                    <input type="datetime-local" id="end" name="end" class="form__input">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card__header">
+                                <h5 class="card__title">Цель опроса</h5>
+                            </div>
+                            <div class="card__body">
+                                <div class="form__field">
+                                    <label for="user" class="form__label">Выберите цель</label>
+                                    <select name="user" id="user" class="form__input">
+                                        {% get_users as users %}
+                                        {% for user in users  %}
+                                            <option value="#{{ user.pk }}">{{ user.get_full_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form__field">
+                                    <a href="#" class="button button--success">Добавить</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card__header">
+                                <h5 class="card__title">Список вопросов</h5>
+                            </div>
+                            <div class="card__body">
+                                Список вопросов пуст
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card__header">
+                                <h5 class="card__title">Список участников</h5>
+                            </div>
+                            <div class="card__body">
+                                Список участников пуст
+                            </div>
+                        </div>
+                        <div class="buttons">
+                            <a href="{% url 'reviews' %}" class="button">Отменить</a>
+                            <button class="button button--success">Сохранить</button>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card">
+                            <div class="card__header">
+                                <h5 class="card__title">Создать вопрос</h5>
+                            </div>
+                            <div class="card__body">
+                                <div class="form__field">
+                                    <label for="question-title" class="form__label">Содержание</label>
+                                    <input type="text" name="question-title" class="form__input">
+                                </div>
+                                <div class="form__field">
+                                    <label for="question-category" class="form__label">Категория</label>
+                                    <select class="form__input form__input--select" name="question-category" id="question-category">
+                                        {% get_categories as categories %}
+                                        <option disabled selected>Выберите категорию</option>
+                                        {% for category in categories %}
+                                            <option value="{{ category.pk }}">{{ category }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form__field">
+                                    <a href="#" class="button button--success">Добавить</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card__header">
+                                <h5 class="card__title">Добавить вопрос</h5>
+                            </div>
+                            <div class="card__body">
+                                <div class="form__field">
+                                    <label for="title" class="form__label">Выберите существующий вопрос</label>
+                                    <input type="text" class="form__input" list="questions">
+                                    <datalist id="questions">
+                                        {% get_questions as questions %}
+                                        {% for question in questions  %}
+                                            <option value="#{{ question.pk }}">{{ question }}</option>
+                                        {% endfor %}
+                                    </datalist>
+                                </div>
+                                <div class="form__field">
+                                    <a href="#" class="button button--success">Добавить</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                                <div class="card__header">
+                                    <h5 class="card__title">Добавить участникова</h5>
+                                </div>
+                                <div class="card__body">
+                                    <div class="form__field">
+                                        <label for="title" class="form__label">Выберите участника</label>
+                                        <input type="text" class="form__input" list="users">
+                                        <datalist id="users">
+                                            {% get_users as users %}
+                                            {% for user in users  %}
+                                                <option value="#{{ user.pk }}">{{ user.get_full_name }}</option>
+                                            {% endfor %}
+                                        </datalist>
+                                    </div>
+                                    <div class="form__field">
+                                        <a href="#" class="button button--success">Добавить</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}
