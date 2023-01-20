@@ -1,296 +1,175 @@
-from django.contrib.auth import logout
-from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.views import LoginView
-from django.http import HttpResponse, HttpResponseNotFound, Http404, HttpResponseRedirect
-from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse_lazy
-from django.views.generic import CreateView
+from django.db.models import Q
+from django.http import HttpResponseNotFound
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.response import Response
 
-from .forms import *
-from .models import *
-
-
-class UserCreate(CreateView):
-    form_class = RegisterUserForm
-    template_name = 'anygrade/registration.html'
-    success_url = reverse_lazy('authorization')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Регистрация нового пользователя'
-        return context
-
-    def form_valid(self, form):
-        user = form.save()
-        login(self.request, user)
-        return redirect('home')
+from .permissions import IsAdminOrAuthorUpdateAndDeleteOrCreatorCreateOrAuthenticatedRead
+from .serializers import *
 
 
-class UserAuth(LoginView):
-    form_class = AuthorizationUserForm
-    template_name = 'anygrade/authorization.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Авторизация'
-        return context
-
-    def get_success_url(self):
-        return reverse_lazy('home')
+class UsersViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 
 
-def logout_user(request):
-    logout(request)
-    return redirect('authorization')
+class QuestionViewSet(viewsets.ModelViewSet):
+    queryset = Question.objects.all()
+    serializer_class = QuestionsSerializer
+    permission_classes = (IsAdminOrAuthorUpdateAndDeleteOrCreatorCreateOrAuthenticatedRead, )
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filter_fields = ['title']
+    search_fields = ['title']
+    ordering_fields = ['category', 'title']
+
+    @action(methods=['get'], detail=False)
+    def all(self, request):
+        questions = Question.objects.all()
+        question_serializer = QuestionsSerializer(questions, many=True)
+
+        return Response(question_serializer.data)
 
 
-def index(request):
-    posts = User.objects.all()
-    context = {
-        'posts': posts,
-        'title': 'Главная страница'
-    }
-    return render(request, 'anygrade/index.html', context=context)
+class ReviewsViewSet(viewsets.ModelViewSet):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+    filter_backends = [SearchFilter, OrderingFilter]
+    search_fields = ['title', 'description']
+    ordering_fields = ['created_at', 'start_time', 'end_time']
 
+    @action(methods=['get'], detail=False)
+    def current(self, request):
+        reviews = Review.objects.filter(Q(start_time__lte=datetime.now()) & Q(end_time__gt=datetime.now()))
+        review_serializer = ReviewSerializer(reviews, many=True)
 
-def questions(request):
-    questions = Question.objects.all()
-    context = {
-        'questions': questions,
-        'title': 'Список вопросов'
-    }
-    return render(request, 'anygrade/questions/page.html', context=context)
+        return Response(review_serializer.data)
 
+    @action(methods=['get'], detail=True)
+    def results(self, request, pk=None):
+        results = Result.objects.filter(subject_id=pk)
+        review = Review.objects.get(pk=pk)
 
-def show_question(request, question_id):
-    question = get_object_or_404(Question, pk=question_id)
-    context = {
-        'question': question,
-        'title': f'Редактирование вопроса | Вопрос #{question.pk}'
-    }
-    return render(request, 'anygrade/questions/edit.html', context=context)
-
-
-def remove_question(request, question_id):
-    question = get_object_or_404(Question, pk=question_id)
-    question.delete()
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-
-
-def add_question(request):
-    if request.method == 'POST':
-        pass
-    else:
-        context = {
-            'title': 'Новый вопрос'
+        final_result = {
+            'status': False,
+            'finish': results.count() == review.participant.count(),
+            'results_count': results.count(),
+            'questions_count': review.question.count(),
+            'participant': []
         }
-        return render(request, 'anygrade/questions/add.html', context=context)
+
+        if results.count():
+            final_result['status'] = True
+            size = len(results[0].data)
+
+            sum_results = [0 for i in range(size)]
+            for result in results:
+                row = result.data
+                final_result['participant'].append(result.author.id)
+                for i in range(len(row)):
+                    sum_results[i] += int(row[i])
+
+            all_categories = []
+            for question in review.question.all():
+                all_categories.append(question.category_id)
+
+            count_questions = []
+            parsed_results = []
+            parsed_categories = []
+            for i in range(size):
+                if all_categories[i] in parsed_categories:
+                    index = parsed_categories.index(all_categories[i])
+                    parsed_results[index] += sum_results[i]
+                    count_questions[index] += 1
+                else:
+                    parsed_results.append(sum_results[i])
+                    parsed_categories.append(all_categories[i])
+                    count_questions.append(1)
+
+            final_result['categories'] = list(map(lambda id: Category.objects.get(pk=id).pk, parsed_categories))
+
+            final_result['average'] = list(map(lambda value, count: value / (results.count() * count), parsed_results, count_questions))
+
+        return Response(final_result)
 
 
-def templates(request):
-    templates = Template.objects.all()
+class TemplatesViewSet(viewsets.ModelViewSet):
+    queryset = Template.objects.all()
+    serializer_class = TemplatesSerializer
+    filter_backends = [SearchFilter, OrderingFilter]
+    search_fields = ['title', 'description']
+    ordering_fields = ['created_at', 'title']
 
-    context = {
-        'templates': templates,
-        'title': 'Шаблоны'
-    }
-    return render(request, 'anygrade/templates/page.html', context=context)
+    @action(methods=['post'], detail=True)
+    def use(self, request, pk=None):
+        title = request.POST['title']
+        author = request.POST['author']
+        subject = request.POST['subject']
 
+        if not len(title):
+            raise serializers.ValidationError('Поле title обязательное для заполнения.')
+        if not User.objects.filter(pk=author).exists():
+            raise serializers.ValidationError('Пользователь с таким ID не существует.')
+        if not User.objects.filter(pk=subject).exists():
+            raise serializers.ValidationError('Пользователь с таким ID не существует.')
 
-def show_template(request, template_id):
-    template = get_object_or_404(Template, pk=template_id)
+        review = Review.objects.create(
+            author_id=author,
+            title=title,
+            subject_id=subject,
+            template_id=pk
+        )
 
-    context = {
-        'template': template,
-        'title': f'Шаблон #{template_id} | {template.title} '
-    }
-    return render(request, 'anygrade/templates/single.html', context=context)
+        review.question.set(Template.objects.get(pk=pk).question.all())
+        review_serializer = ReviewSerializer(review)
 
-
-def edit_template(request, template_id):
-    if request.method == 'POST':
-        pass
-    else:
-        template = get_object_or_404(Template, pk=template_id)
-
-        context = {
-            'template': template,
-            'title': 'Редактирование шаблона'
-        }
-        return render(request, 'anygrade/templates/edit.html', context=context)
-
-
-def add_template(request):
-    if request.method == 'POST':
-        pass
-    else:
-        context = {
-            'title': 'Новый шаблон'
-        }
-        return render(request, 'anygrade/templates/add.html', context=context)
+        return Response(review_serializer.data)
 
 
-def copy_template(request, template_id):
-    context = {
-        'title': 'Новый шаблон'
-    }
-    return render(request, 'anygrade/index.html', context=context)
+class CategoriesViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategoriesSerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filter_fields = ['title']
+    search_fields = ['title']
+    ordering_fields = ['created_at', 'title']
+
+    @action(methods=['get', 'post'], detail=True)
+    def questions(self, request, pk=None):
+        if request.method == 'GET':
+            questions = Question.objects.filter(category__id=pk)
+            question_serializer = QuestionsSerializer(questions, many=True)
+
+            return Response(question_serializer.data)
+
+        title = request.POST['title']
+        author = request.POST['author']
+
+        if not len(title):
+            raise serializers.ValidationError('Поле title обязательное для заполнения.')
+        if not User.objects.filter(pk=author).exists():
+            raise serializers.ValidationError('Пользователь с таким ID не существует.')
+
+        question = Question.objects.create(title=title, author_id=author)
+        question_serializer = QuestionsSerializer(question)
+
+        return Response(question_serializer.data)
+
+    @action(methods=['get'], detail=False)
+    def all(self, request):
+        categories = Category.objects.all()
+        category_serializer = CategoriesSerializer(categories, many=True)
+
+        return Response(category_serializer.data)
 
 
-def remove_template(request, template_id):
-    template = get_object_or_404(Template, pk=template_id)
-    template.delete()
-    return redirect('templates')
+class ResultsViewSet(viewsets.ModelViewSet):
+    queryset = Result.objects.all()
+    serializer_class = ResultsSerializer
+    filter_backends = [OrderingFilter]
+    ordering_fields = ['created_at']
 
 
-def show_user(request, user_slug):
-    user = get_object_or_404(User, username=user_slug)
-    context = {
-        'user': user,
-        'title': user.get_full_name()
-    }
-    return render(request, 'anygrade/staff/single.html', context=context)
-
-
-def reviews(request):
-    reviews = Review.objects.all()
-    context = {
-        'reviews': reviews,
-        'title': 'Отчеты'
-    }
-    return render(request, 'anygrade/reviews/page.html', context=context)
-
-
-def show_review(request, review_id):
-    review = get_object_or_404(Review, pk=review_id)
-
-    results = Result.objects.filter(subject_id=review.pk)
-    final_result = {
-        'status': False
-    }
-
-    if (results.count()):
-        final_result['status'] = True
-        size = len(results[0].data)
-
-        sum_results = [0 for i in range(size)]
-        for result in results:
-            row = result.data
-            for i in range(len(row)):
-                sum_results[i] += int(row[i])
-
-        all_categories = []
-        for question in review.question.all():
-            all_categories.append(question.category_id)
-
-        count_questions = []
-        parsed_results = []
-        parsed_categories = []
-        for i in range(size):
-            if all_categories[i] in parsed_categories:
-                index = parsed_categories.index(all_categories[i])
-                parsed_results[index] += sum_results[i]
-                count_questions[index] += 1
-            else:
-                parsed_results.append(sum_results[i])
-                parsed_categories.append(all_categories[i])
-                count_questions.append(1)
-
-        final_result['categories'] = '|'.join(list(map(lambda id: Category.objects.get(pk=id).title, parsed_categories)))
-
-        final_result['data'] = '|'.join(list(map(lambda value, count: str(value / (results.count() * count)), parsed_results, count_questions)))
-
-    print(final_result)
-
-    context = {
-        'review': review,
-        'result': final_result,
-        'title': f'Отчет #{review.pk}'
-    }
-    return render(request, 'anygrade/reviews/single.html', context=context)
-
-
-def add_review(request):
-    if request.method == 'POST':
-        pass
-    else:
-        context = {
-            'title': 'Новый опрос'
-        }
-        return render(request, 'anygrade/reviews/add.html', context=context)
-
-
-def edit_review(request, review_id):
-    if request.method == 'POST':
-        pass
-    else:
-        review = get_object_or_404(Review, pk=review_id)
-
-        context = {
-            'review': review,
-            'title': 'Редактировать опрос'
-        }
-        return render(request, 'anygrade/reviews/edit.html', context=context)
-
-
-def remove_review(request, review_id):
-    review = get_object_or_404(Review, pk=review_id)
-    review.delete()
-    return redirect('reviews')
-
-
-def do_review(request, review_id):
-    if request.method == 'POST':
-        pass
-    else:
-        review = get_object_or_404(Review, pk=review_id)
-
-        context = {
-            'review': review,
-            'title': 'Выполнение опроса'
-        }
-        return render(request, 'anygrade/reviews/do.html', context=context)
-
-
-
-
-def categories(request):
-    categories = Category.objects.all()
-    context = {
-        'categories': categories,
-        'title': 'Категории'
-    }
-    return render(request, 'anygrade/categories/page.html', context=context)
-
-
-def edit_category(request, category_id):
-    if request.method == 'POST':
-        pass
-    else:
-        category = get_object_or_404(Category, pk=category_id)
-
-        context = {
-            'category': category,
-            'title': 'Редактирование категории'
-        }
-        return render(request, 'anygrade/categories/edit.html', context=context)
-
-
-def remove_category(request, category_id):
-    category = get_object_or_404(Category, pk=category_id)
-    category.delete()
-    return redirect('categories')
-
-
-def add_category(request):
-    if request.method == 'POST':
-        pass
-    else:
-        context = {
-            'title': 'Новая категория'
-        }
-        return render(request, 'anygrade/categories/add.html', context=context)
-
-
-def pageNotFound(request, exception):
+def page_not_found(request, exception):
     return HttpResponseNotFound('Страница не найдена.')

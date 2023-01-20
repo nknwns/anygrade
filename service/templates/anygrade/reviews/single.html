@@ -56,10 +56,12 @@
                             </lord-icon>
                             <h3 class="review__datetime">Старт: {{ review.start_time|date:"d M Y, H:00" }}</h3>
                             <h3 class="review__datetime">Окончание: {{ review.end_time|date:"d M Y, H:00" }}</h3>
+                            {% if perms.service.edit_review %}
                             <div class="review__buttons">
                                 <a href="#" class="button button--success">Начать</a>
                                 <a href="#" class="button button--danger">Остановить</a>
                             </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -90,8 +92,12 @@
                 </div>
             </div>
             <div class="col-lg-8">
+                {% if perms.service.edit_review %}
                 <a href="{{ review.get_absolute_url }}/edit" class="button mb-1">Редактировать</a>
+                {% endif %}
+                {% if perms.service.delete_review %}
                 <a href="{{ review.get_absolute_url }}/remove" class="button button--danger mb-1">Удалить</a>
+                {% endif %}
                 <a href="{{ review.get_absolute_url }}/do" class="button button--success mb-1">Пройти опрос</a>
                 {% if result.status %}
                     <div class="card">

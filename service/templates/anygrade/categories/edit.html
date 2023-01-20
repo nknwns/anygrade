@@ -23,7 +23,9 @@
                         </div>
                         <div class="buttons">
                             <a href="{% url 'categories' %}" class="button">Отменить</a>
+                            {% if perms.service.delete_category %}
                             <a href="{{ category.get_absolute_url }}/remove" class="button button--danger">Удалить</a>
+                            {% endif %}
                             <button class="button button--success">Сохранить</button>
                         </div>
                     </div>

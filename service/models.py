@@ -1,15 +1,37 @@
+from django.contrib.auth.base_user import AbstractBaseUser
+from django.contrib.auth.models import AbstractUser, PermissionsMixin, User
 from django.db import models
 from django.urls import reverse
-from django.contrib.auth.models import User
+from django.utils.datetime_safe import datetime
+from simple_history.models import HistoricalRecords
 
-# Create your models here.
 
+# Create your models here
 
-class Template(models.Model):
-    title = models.CharField(max_length=127, verbose_name='Название')
-    description = models.CharField(max_length=255, verbose_name='Описание')
-    author = models.ForeignKey(User, on_delete=models.CASCADE, null=True, verbose_name='Автор')
+class BaseModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
+    history = HistoricalRecords(
+        inherit=True,
+        history_change_reason_field=models.TextField(null=True)
+    )
+
+    class Meta:
+        abstract = True
+        ordering = ['-created_at', '-updated_at']
+
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, null=True, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.user.first_name} {self.user.last_name}"
+
+
+class Template(BaseModel):
+    title = models.CharField(max_length=128, verbose_name='Название')
+    description = models.CharField(max_length=256, verbose_name='Описание')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, null=True, verbose_name='Автор')
     question = models.ManyToManyField('Question', verbose_name='Вопросы')
 
     def __str__(self):
@@ -18,16 +40,27 @@ class Template(models.Model):
     def get_absolute_url(self):
         return reverse('template', kwargs={'template_id': self.pk})
 
+    @property
+    def questions_count(self):
+        return self.question.count()
+
+    questions_count.fget.short_description = 'Количество вопросов'
+
+    @property
+    def review_count(self):
+        return Review.objects.filter(template__pk=self.pk).count()
+
+    review_count.fget.short_description = 'Действующие опросы'
+
     class Meta:
         verbose_name = 'Шаблон'
         verbose_name_plural = 'Шаблоны'
         ordering = ['created_at', 'title']
 
 
-class Question(models.Model):
-    title = models.CharField(max_length=1023, verbose_name='Содержание')
+class Question(BaseModel):
+    title = models.CharField(max_length=255, unique=True, verbose_name='Содержание')
     author = models.ForeignKey(User, on_delete=models.CASCADE, null=True, verbose_name='Автор')
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     category = models.ForeignKey('Category', on_delete=models.CASCADE, verbose_name='Категория', null=True)
 
     def __str__(self):
@@ -42,8 +75,9 @@ class Question(models.Model):
         ordering = ['created_at']
 
 
-class Category(models.Model):
-    title = models.CharField(max_length=127, verbose_name='Название')
+class Category(BaseModel):
+    title = models.CharField(max_length=128, verbose_name='Название')
+    author = models.ForeignKey(User, verbose_name='Автор', null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.title
@@ -56,16 +90,45 @@ class Category(models.Model):
         verbose_name_plural = 'Категории'
 
 
-class Review(models.Model):
-    title = models.CharField(max_length=127, verbose_name='Название')
-    description = models.CharField(max_length=255, verbose_name='Описание')
+class Review(BaseModel):
+    title = models.CharField(max_length=128, verbose_name='Название')
+    description = models.CharField(max_length=256, verbose_name='Описание')
     start_time = models.DateTimeField(verbose_name='Время начала', null=True)
     end_time = models.DateTimeField(verbose_name='Время конца', null=True)
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     question = models.ManyToManyField('Question', verbose_name='Вопросы')
-    author = models.ForeignKey(User, on_delete=models.CASCADE, null=True, verbose_name='Автор', related_name='author_review')
-    subject = models.ForeignKey(User, on_delete=models.CASCADE, null=True, verbose_name='Опрашиваемый', related_name='subject_review')
+    template = models.ForeignKey('Template', on_delete=models.SET_NULL, null=True, blank=True,
+                                 verbose_name='Изначальный шаблон')
+    author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name='Автор',
+                               related_name='author_review')
+    subject = models.ForeignKey(User, on_delete=models.CASCADE, null=True, verbose_name='Опрашиваемый',
+                                related_name='subject_review')
     participant = models.ManyToManyField(User, verbose_name='Участники', related_name='participant_review')
+
+    @property
+    def result_count(self):
+        return Result.objects.filter(subject__pk=self.pk).count()
+
+    result_count.fget.short_description = 'Количество ответов'
+
+    @property
+    def status(self):
+        if self.end_time:
+            return ['Закончен', 'Активен'][self.end_time.timestamp() > datetime.now().timestamp()]
+        return 'Не определено'
+
+    status.fget.short_description = 'Статус'
+
+    @property
+    def question_count(self):
+        return self.question.count()
+
+    question_count.fget.short_description = 'Количество вопросов'
+
+    @property
+    def participant_count(self):
+        return self.participant.count()
+
+    participant_count.fget.short_description = 'Количество опрашиваемых'
 
     def __str__(self):
         return self.title
@@ -74,15 +137,16 @@ class Review(models.Model):
         return reverse('review', kwargs={'review_id': self.pk})
 
     class Meta:
-        verbose_name = 'Отчет'
-        verbose_name_plural = 'Отчеты'
+        verbose_name = 'Опрос'
+        verbose_name_plural = 'Опросы'
 
 
-class Result(models.Model):
-    data = models.CharField(max_length=255, verbose_name='Тело ответа')
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
-    author = models.ForeignKey(User, on_delete=models.CASCADE, null=True, verbose_name='Автор', related_name='author_result')
-    subject = models.ForeignKey(Review, on_delete=models.CASCADE, null=True, verbose_name='Опрос', related_name='subject_result')
+class Result(BaseModel):
+    data = models.CharField(max_length=256, verbose_name='Тело ответа')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, null=True, verbose_name='Автор',
+                               related_name='author_result')
+    subject = models.ForeignKey(Review, on_delete=models.CASCADE, null=True, verbose_name='Опрос',
+                                related_name='subject_result')
 
     def __str__(self):
         return f'{self.author} | {self.subject}'

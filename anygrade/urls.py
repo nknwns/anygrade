@@ -13,20 +13,25 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 
 from anygrade import settings
-from service.views import index, pageNotFound
-from django.urls import path, include
+from service.views import page_not_found
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('service.urls'))
+    path('drf-auth/', include('rest_framework.urls'))
 ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-handler404 = pageNotFound
+urlpatterns += i18n_patterns(
+    path('', include('service.urls')),
+    prefix_default_language=False
+)
+
+handler404 = page_not_found

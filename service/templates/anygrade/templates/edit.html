@@ -46,7 +46,9 @@
                         </div>
                         <div class="buttons">
                             <a href="{{ template.get_absolute_url }}" class="button">Отменить</a>
+                            {% if perms.service.delete_template %}
                             <a href="{{ template.get_absolute_url }}/delete" class="button button--danger">Удалить</a>
+                            {% endif %}
                             <button class="button button--success">Сохранить</button>
                         </div>
                     </div>

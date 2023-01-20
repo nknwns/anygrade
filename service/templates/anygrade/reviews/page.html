@@ -3,12 +3,14 @@
 {% block content %}
 <section class="template section">
     <div class="container">
-        {% if request.user.is_authenticated %}
+        {% if perms.service.view_rewiew %}
         <div class="row">
             <div class="col-12">
                 <div class="section__header">
-                    <h4 class="section__title">Список отчетов</h4>
+                    <h4 class="section__title">Список опросов</h4>
+                    {% if perms.service.add_review %}
                     <a href="{% url 'add-review' %}" class="button button--success">+ Создать опрос</a>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -42,7 +44,7 @@
         {% else %}
             <div class="row">
                 <div class="col-12">
-                    <h2>Для просмотра отчетов необходимо авторизоваться.</h2>
+                    <h2>Для просмотра опросов необходимы определенные права.</h2>
                 </div>
             </div>
         {% endif %}

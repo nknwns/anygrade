@@ -7,7 +7,9 @@
             <div class="col-12">
                 <div class="section__header">
                     <h4 class="section__title">Список вопросов</h4>
+                    {% if perms.service.add_question %}
                     <a href="{% url 'add-question' %}" class="button button--success">+ Добавить вопрос</a>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -20,7 +22,9 @@
                                 <th>ID</th>
                                 <th>Вопрос</th>
                                 <th>Категория</th>
-                                <th>Действия</th>
+                                {% if perms.service.delete_question or perms.service.edit_question %}
+                                    <th>Действия</th>
+                                {% endif %}
                             </tr>
                         </thead>
                         <tbody>
@@ -35,10 +39,16 @@
                                 <td>
                                     <span class="badge badge--secondary">{{ question.category }}</span>
                                 </td>
+                                {% if perms.service.edit_question or perms.service.delete_question %}
                                 <td>
+                                    {% if perms.service.edit_question %}
                                     <a href="{{ question.get_absolute_url }}" class="button mb-1">Редактировать</a>
+                                    {% endif %}
+                                    {% if perms.service.delete_question %}
                                     <a href="{{ question.get_absolute_url }}/remove" class="button button--danger">Удалить</a>
+                                    {% endif %}
                                 </td>
+                                {% endif %}
                             </tr>
                             {% endfor %}
                         </tbody>

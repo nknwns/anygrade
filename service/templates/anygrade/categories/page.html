@@ -7,7 +7,9 @@
             <div class="col-12">
                 <div class="section__header">
                     <h4 class="section__title">Список категорий</h4>
+                    {% if perms.service.add_category %}
                     <a href="{% url 'add-category' %}" class="button button--success">+ Добавить категорию</a>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -31,8 +33,12 @@
                                     </td>
                                     <td>{{ category.title }}</td>
                                     <td>
+                                        {% if perms.service.edit_category %}
                                         <a href="{{ category.get_absolute_url }}/edit" class="button mb-1">Редактировать</a>
+                                        {% endif %}
+                                        {% if perms.service.add_category %}
                                         <a href="{{ category.get_absolute_url }}/remove" class="button button--danger">Удалить</a>
+                                        {% endif %}
                                     </td>
                                 </tr>
                                 {% endfor %}

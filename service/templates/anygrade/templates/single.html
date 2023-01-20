@@ -7,7 +7,9 @@
             <div class="col-12">
                 <div class="section__header">
                     <h4 class="section__title">Просмотр шаблона</h4>
-                    <a href="{{ template.get_absolute_url }}/copy" class="card__button button button--success">Использовать шаблон</a>
+                    {% if perms.service.add_review %}
+                    <a href="#" class="card__button button button--success">Использовать шаблон</a>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -49,7 +51,12 @@
             <div class="col-md-9">
                 <div class="line form">
                     <div class="form__group">
+                        {% if perms.service.delete_template %}
+                        <a href="{{ template.get_absolute_url }}/remove" class="button button--danger">Удалить шаблон</a>
+                        {% endif %}
+                        {% if perms.service.edit_template %}
                         <a href="{{ template.get_absolute_url }}/edit" class="button">Редактировать шаблон</a>
+                        {% endif %}
                     </div>
                     <div class="form__group">
                         <label for="question-title" hidden>Заголовок вопроса</label>
